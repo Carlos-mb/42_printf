@@ -1,6 +1,0 @@
-Espera una cadena acabada en NULL. Si no, dará un error de outbound, igual que print_f
-
-El subject dice que se debe replicar el funcionamiento de printf. El printf original cuenta las letras acentuadas como 2 characteres (2 bytes). printf de "á" devuelve 2
-
-
-
