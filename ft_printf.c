@@ -6,22 +6,11 @@
 /*   By: cmelero- <cmelero-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 12:39:02 by cmelero-          #+#    #+#             */
-/*   Updated: 2026/01/18 20:33:31 by cmelero-         ###   ########.fr       */
+/*   Updated: 2026/01/20 12:59:00 by cmelero-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-
-static size_t	ft_print_char(size_t *p_i, va_list args)
-{
-	char	c;
-	int		i;
-
-	i = va_arg(args, int);
-	c = (char) i;
-	(*p_i) += 1;
-	return (write(1, &c, 1));
-}
 
 static size_t	ft_print_s(size_t *p_i, va_list args)
 {
@@ -46,157 +35,6 @@ static size_t	ft_print_s(size_t *p_i, va_list args)
 	return (count);
 }
 
-static size_t	ft_write_hex(uintptr_t n, const char *hex)
-{
-	int		count;
-
-	count = 0;
-	if (n >= 16)
-	{
-		count += ft_write_hex (n / 16, hex);
-		count += write (1, &(hex[n % 16]), 1);
-	}
-	else
-		count += write (1, &(hex[n]), 1);
-	return (count);
-}
-
-
-static size_t	ft_print_p(size_t *p_i, va_list args)
-{
-	void		*p;
-	uintptr_t	value;
-	size_t		count;
-
-	p = va_arg(args, void *);
-	if (!p)
-	{
-		count = write(1, "(nil)", 5);
-	}
-	else
-	{
-		value = (uintptr_t) p;
-		count = write (1, "0x", 2);
-		count += ft_write_hex(value, "0123456789abcdefgh");
-	}
-	(*p_i) += 1;
-	return (count);
-}
-
-static int	ft_digits(long n)
-{
-	int	size;
-
-	size = 1;
-	while (n > 9)
-	{
-		size++;
-		n = n / 10;
-	}
-	return (size);
-}
-
-static char	*ft_itoa(int n)
-{
-	char	*output;
-	int		size;
-	long	ln;
-	int		isnegative;
-
-	ln = (long)n;
-	size = 0;
-	isnegative = 0;
-	if (ln < 0)
-		size = ++isnegative;
-	ln = ln * (1 - (2 * isnegative));
-	size += ft_digits(ln);
-	output = malloc (sizeof(char) * (size + 1));
-	if (output == NULL)
-		return (NULL);
-	if (isnegative)
-		output[0] = '-';
-	output[size] = '\0';
-	while (--size - isnegative >= 0)
-	{
-		output[size] = '0' + (ln % 10);
-		ln = ln / 10;
-	}
-	return (output);
-}
-
-static size_t	ft_print_d_i(size_t *p_i, va_list args)
-{
-	int		n;
-	char	*c_value;
-	size_t	count;
-	int		j;
-
-	n = va_arg(args, int);
-	c_value = ft_itoa (n);
-	if (!c_value)
-		return (0);
-	(*p_i) += 1;
-	count = 0;
-	j = 0;
-	while (c_value[j])
-	{
-		count += write(1, &c_value[j], 1);
-		j++;
-	}
-	free (c_value);
-	return (count);
-}
-
-static char	*ft_utoa(unsigned int n)
-{
-	char	*output;
-	int		size;
-
-	size = ft_digits(n);
-	output = malloc (sizeof(char) * (size + 1));
-	if (output == NULL)
-		return (NULL);
-	output[size] = '\0';
-	while (--size >= 0)
-	{
-		output[size] = '0' + (n % 10);
-		n = n / 10;
-	}
-	return (output);
-}
-static size_t	ft_print_u(size_t *p_i, va_list args)
-{
-	unsigned int	n;
-	char			*c_value;
-	size_t			count;
-	int				j;
-
-	n = va_arg(args, unsigned int);
-	c_value = ft_utoa (n);
-	if (!c_value)
-		return (0);
-	(*p_i) += 1;
-	count = 0;
-	j = 0;
-	while (c_value[j])
-	{
-		count += write(1, &c_value[j], 1);
-		j++;
-	}
-	free (c_value);
-	return (count);
-}
-
-
-static int	ft_print_x(size_t *p_i, va_list args, const char *hex)
-{
-	unsigned	n;
-
-	n = va_arg(args, unsigned int);
-	(*p_i) += 1;
-	return (ft_write_hex(n, hex));
-}
-
 static size_t	ft_print_this(char const *text, size_t *p_i, va_list args)
 {
 	size_t	count;
@@ -219,9 +57,9 @@ static size_t	ft_print_this(char const *text, size_t *p_i, va_list args)
 	else if (text[*p_i] == '%' && text[(*p_i) + 1] == 'u')
 		return (ft_print_u(p_i, args));
 	else if (text[*p_i] == '%' && text[(*p_i) + 1] == 'x')
-		return (ft_print_x(p_i, args, "0123456789abcdefgh"));
+		return (ft_print_x(p_i, args, "0123456789abcdef"));
 	else if (text[*p_i] == '%' && text[(*p_i) + 1] == 'X')
-		return (ft_print_x(p_i, args, "0123456789ABCDEFGH"));
+		return (ft_print_x(p_i, args, "0123456789ABCDEF"));
 	return (count);
 }
 
@@ -232,7 +70,7 @@ int	ft_printf(char const *text, ...)
 	size_t	count;
 
 	if (!text)
-		return (0);
+		return (-1);
 	va_start (args, text);
 	i = 0;
 	count = 0;
@@ -248,17 +86,25 @@ int	ft_printf(char const *text, ...)
 #include <stdio.h>
 #include <limits.h>
 // cspdiuxX%
-int	main(void)
+int	xmain(void)
 {
+
+	printf("---\n");
+	printf("%d", ft_printf(NULL, NULL));
+	printf("\n---\n");
+	printf("%d", printf(NULL, NULL));
+*/
+	/*
 	size_t n = 0;
-	n = ft_printf(" %i ", NULL, 0);
+	n = ft_printf(" %i ", NULL, 0);	
 	printf("%d", n);
 	printf("\n");
 	printf("%d", printf(" %p %p ", 0, 0));
 //	printf("\n");
-	return 0;
-}
 
+	return 0;
+}*/
+/*
 //	ft_printf(a);
 
 printf("Al loro con esto...\n");
