@@ -53,3 +53,10 @@ Referencias útiles para comprender y extender el proyecto:
 Uso de IA:
 - Para generar ideas para README, como el apartado "Recursos"
 - Pregunta sobre funcionamientos específicos de printf y discusiones que me sirvieron para aprender porque se equivoda mucho y me obliga a razonar :)
+
+## NOTA: Francinette
+
+Para que funcione francinette / paco: 
+
+en ~/francinette/tests/printf/fsoares/Makefile quítale los -W... de FLAGS
+en :~/francinette/tests/printf/printfTester/Makefile Añade esta flag: -gdwarf-4
