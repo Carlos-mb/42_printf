@@ -25,7 +25,7 @@ $(NAME): $(OBJ)
 	ar -rcs $(NAME) $(OBJ)
 
 %.o: %.c $(HEADER)
-	cc $(FLAG) -c $< -o $@
+	cc  -c $< -o $@
 
 clean:
 	rm -f $(OBJ)
